@@ -3,8 +3,9 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import MatchRequest, MatchResponse, RecipeMatch
+from models import MatchRequest, MatchResponse, RecipeMatch, RecipesResponse, RecipeSummary
 from matcher import match_recipes
+from recipes import RECIPES
 
 app = FastAPI(title="Meal Planner")
 
@@ -28,3 +29,8 @@ def health():
 def match(request: MatchRequest):
     results = match_recipes(request.ingredients)
     return MatchResponse(matches=[RecipeMatch(**r) for r in results])
+
+
+@app.get("/recipes", response_model=RecipesResponse)
+def list_recipes():
+    return RecipesResponse(recipes=[RecipeSummary(name=r["name"]) for r in RECIPES])

@@ -25,6 +25,7 @@ export function CurrentGroceries({ items, onAdd, onRemove, onClearAll }: Props) 
           placeholder="Add an item (e.g. eggs)"
           style={{
             flex: 1,
+            minWidth: 0,
             padding: 8,
             fontSize: 13,
             borderRadius: 6,

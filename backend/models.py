@@ -16,3 +16,11 @@ class RecipeMatch(BaseModel):
 
 class MatchResponse(BaseModel):
     matches: list[RecipeMatch]
+
+
+class RecipeSummary(BaseModel):
+    name: str
+
+
+class RecipesResponse(BaseModel):
+    recipes: list[RecipeSummary]

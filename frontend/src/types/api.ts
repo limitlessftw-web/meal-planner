@@ -9,3 +9,11 @@ export interface RecipeMatch {
 export interface MatchResponse {
   matches: RecipeMatch[];
 }
+
+export interface RecipeSummary {
+  name: string;
+}
+
+export interface RecipesResponse {
+  recipes: RecipeSummary[];
+}

@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IngredientInput } from "./components/IngredientInput";
 import { RecipeList } from "./components/RecipeList";
 import { RecipeHistory } from "./components/RecipeHistory";
 import { GroceryList } from "./components/GroceryList";
 import { CurrentGroceries } from "./components/CurrentGroceries";
+import { WeeklyPlanGrid } from "./components/WeeklyPlan";
 import { useRecipeHistory } from "./hooks/useRecipeHistory";
 import { useGroceryList } from "./hooks/useGroceryList";
 import { usePantry } from "./hooks/usePantry";
-import { matchRecipes } from "./api/client";
+import { useWeeklyPlan } from "./hooks/useWeeklyPlan";
+import { matchRecipes, listRecipes } from "./api/client";
 import type { RecipeMatch } from "./types/api";
 
 export default function App() {
@@ -18,6 +20,17 @@ export default function App() {
   const { history, markUsed, clearHistory } = useRecipeHistory();
   const grocery = useGroceryList();
   const pantry = usePantry();
+  const weeklyPlan = useWeeklyPlan();
+  const [recipeNames, setRecipeNames] = useState<string[]>([]);
+  const [recipesLoading, setRecipesLoading] = useState(true);
+  const [recipesError, setRecipesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    listRecipes()
+      .then((res) => setRecipeNames(res.recipes.map((r) => r.name)))
+      .catch((e) => setRecipesError(e instanceof Error ? e.message : "Could not load recipes"))
+      .finally(() => setRecipesLoading(false));
+  }, []);
 
   async function handleSubmit(ingredients: string[]) {
     setLoading(true);
@@ -68,6 +81,18 @@ export default function App() {
           <RecipeList matches={matches} onMarkUsed={markUsed} onAddToGroceryList={grocery.addItems} />
         </div>
       )}
+
+      <div style={{ marginTop: 40 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Weekly Plan</h2>
+        <WeeklyPlanGrid
+          plan={weeklyPlan.plan}
+          recipeNames={recipeNames}
+          onSetDay={weeklyPlan.setDay}
+          onClear={weeklyPlan.clearPlan}
+          loading={recipesLoading}
+          error={recipesError}
+        />
+      </div>
 
       <div style={{ marginTop: 40 }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Current Groceries</h2>
