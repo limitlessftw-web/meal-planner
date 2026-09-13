@@ -1,4 +1,5 @@
 import type { GroceryItem } from "../hooks/useGroceryList";
+import { getPriceEstimate, formatPrice } from "../priceEstimates";
 
 interface Props {
   items: GroceryItem[];
@@ -18,10 +19,11 @@ export function GroceryList({ items, onToggle, onRemove, onClearChecked, onClear
   }
 
   const checkedCount = items.filter((i) => i.checked).length;
+  const estimatedTotal = items.reduce((sum, i) => sum + (getPriceEstimate(i.name) ?? 0), 0);
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
         <span style={{ fontSize: 13, color: "#6b7280" }}>
           {checkedCount}/{items.length} checked off
         </span>
@@ -55,6 +57,9 @@ export function GroceryList({ items, onToggle, onRemove, onClearChecked, onClear
           </button>
         </div>
       </div>
+      <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 0, marginBottom: 10 }}>
+        Est. total: {formatPrice(estimatedTotal)} — rough national averages, not live store prices.
+      </p>
       <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
         {items.map((item) => (
           <li
@@ -84,6 +89,11 @@ export function GroceryList({ items, onToggle, onRemove, onClearChecked, onClear
             >
               {item.name}
             </span>
+            {getPriceEstimate(item.name) !== null && (
+              <span style={{ fontSize: 12, color: "#9ca3af", fontVariantNumeric: "tabular-nums" }}>
+                {formatPrice(getPriceEstimate(item.name)!)}
+              </span>
+            )}
             <button
               onClick={() => onRemove(item.name)}
               style={{
