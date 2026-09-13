@@ -12,7 +12,10 @@ import { useWeeklyPlan } from "./hooks/useWeeklyPlan";
 import { matchRecipes, listRecipes } from "./api/client";
 import type { RecipeMatch } from "./types/api";
 
+type Tab = "planner" | "weekly";
+
 export default function App() {
+  const [tab, setTab] = useState<Tab>("planner");
   const [matches, setMatches] = useState<RecipeMatch[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +56,30 @@ export default function App() {
         Enter what you have on hand and get matching recipes with what's missing.
       </p>
 
+      <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #e5e7eb", marginBottom: 24 }}>
+        {(["planner", "weekly"] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            style={{
+              padding: "8px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              background: "none",
+              border: "none",
+              borderBottom: tab === t ? "2px solid #16a34a" : "2px solid transparent",
+              color: tab === t ? "#16a34a" : "#6b7280",
+              cursor: "pointer",
+              marginBottom: -1,
+            }}
+          >
+            {t === "planner" ? "Planner" : "Weekly Plan"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "planner" && (
+        <>
       <IngredientInput onSubmit={handleSubmit} disabled={loading} />
 
       {pantry.items.length > 0 && (
@@ -83,18 +110,6 @@ export default function App() {
       )}
 
       <div style={{ marginTop: 40 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Weekly Plan</h2>
-        <WeeklyPlanGrid
-          plan={weeklyPlan.plan}
-          recipeNames={recipeNames}
-          onSetDay={weeklyPlan.setDay}
-          onClear={weeklyPlan.clearPlan}
-          loading={recipesLoading}
-          error={recipesError}
-        />
-      </div>
-
-      <div style={{ marginTop: 40 }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Current Groceries</h2>
         <p style={{ fontSize: 12, color: "#9ca3af", marginTop: -6, marginBottom: 12 }}>
           What you have on hand right now — used by the "Search with my pantry" shortcut above.
@@ -122,6 +137,19 @@ export default function App() {
         <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Past Recipes</h2>
         <RecipeHistory history={history} onClear={clearHistory} />
       </div>
+        </>
+      )}
+
+      {tab === "weekly" && (
+        <WeeklyPlanGrid
+          plan={weeklyPlan.plan}
+          recipeNames={recipeNames}
+          onSetDay={weeklyPlan.setDay}
+          onClear={weeklyPlan.clearPlan}
+          loading={recipesLoading}
+          error={recipesError}
+        />
+      )}
     </div>
   );
 }
